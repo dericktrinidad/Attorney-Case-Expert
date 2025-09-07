@@ -1,0 +1,38 @@
+# Project data
+data/
+datasets/
+*.db
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Jupyter & notebooks
+.ipynb_checkpoints/
+*.ipynb_convert/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs & temp
+*.log
+*.tmp
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# IDE configs
+.vscode/
+.idea/
+*.swp
