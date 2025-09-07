@@ -1,0 +1,15 @@
+env: dev
+weaviate:
+  url: "http://localhost:8080"
+  api_key: ""
+  index: "movies"
+  hybrid_alpha: 0.6
+embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+xgboost:
+  model_path: "models_store/xgb_movie.json"
+llm:
+  provider: "openai"
+  model: "gpt-4o-mini"
+  max_tokens: 256
+logging:
+  level: "INFO"

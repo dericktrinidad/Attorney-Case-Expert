@@ -1,0 +1,15 @@
+weaviate-client~=4.6
+# transformers>=4.43<5
+sentence-transformers>=3.0
+accelerate>=0.33
+# torch==2.4.0
+faiss-cpu>=1.8.0
+rank-bm25>=0.2.2
+tiktoken>=0.7
+pydantic>=2.5
+numpy>=1.26
+pandas>=2.0
+fastapi>=0.111
+uvicorn[standard]>=0.30
+xgboost>=2.0.0
+
