@@ -12,22 +12,28 @@ CinemaRAG is a retrieval-augmented movie recommendation system that combines hyb
 
 - The project demonstrates how to integrate vector databases, ML models, and LLMs into a clean modular pipeline for professional RAG applications.
 
-### 🚀 Setup
+## CinemaRAG Workflow Diagram
+![CinemaRAG Workflow][docs/images/workflow.svg]
+
+The CinemaRAG workflow starts with user input, which is cleaned and embedded for retrieval. A hybrid search over the vector database surfaces the most relevant documents. These results are combined with recommendations from an XGBoost model and formatted into an augmented prompt. Finally, the LLM generates the output response, tailored to the user’s preferences.
+
+
+## 🚀 Setup
 
 Make sure you are using Python 3.10 (recommended for best compatibility). You can create a virtual environment first:
 
-#### Create Conda Setup
+### Create Conda Setup
 ```Bash
 conda create -n {ENV_NAME} python=3.10 -y
 conda activate {ENV_NAME}
 ```
-#### Create Virtual environment
+### Create Virtual environment
 ```Bash
 python3.10 -m venv .venv
 source .venv/bin/activate   # On Linux/Mac
 .venv\Scripts\activate      # On Windows
 ```
-#### Install dependencies:
+### Install dependencies:
 ```Bash
 git clone https://github.com/your-username/cinemarag.git
 cd cinemarag
@@ -36,47 +42,26 @@ pip install -r requirements.txt
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126
 ```
 
-### 🗂️ WorkFlow Hierarchy
+## 🗂️ WorkFlow Hierarchy
 
 
 ```Bash
 project/
-├─ main.py
-├─ pyproject.toml
-├─ README.md
-├─ .env
-├─ configs/
+├─ main.py                 # Entry point – wires together pipeline
+├─ pyproject.toml          # Project metadata & dependencies
+├─ README.md               # Project description & setup guide
+├─ configs/                # YAML/JSON configs for retriever, models, logging
 │  └─ config.yaml
-├─ utils/
-│  ├─ __init__.py
-│  ├─ common/
-│  │  ├─ logging.py
-│  │  ├─ types.py
-│  │  └─ config.py
-│  ├─ ui/
-│  │  ├─ __init__.py
-│  │  └─ api.py                # FastAPI or Streamlit entry (optional)
-│  ├─ retriever/
-│  │  ├─ __init__.py
-│  │  ├─ base.py               # interfaces/protocols
-│  │  └─ weaviate_retriever.py
-│  ├─ features/
-│  │  ├─ __init__.py
-│  │  └─ featurizer.py         # convert retrieval → features for XGBoost
-│  ├─ models/
-│  │  ├─ __init__.py
-│  │  ├─ xgboost_model.py      # train/load/predict
-│  │  └─ llm.py                # final LLM post-processing
-│  └─ pipelines/
-│     ├─ __init__.py
-│     └─ recommend.py          # orchestrates retriever → XGB → LLM
-├─ tests/
-│  ├─ test_retriever.py
-│  ├─ test_featurizer.py
-│  ├─ test_xgb.py
-│  └─ test_pipeline.py
-├─ data/                       # gitignored
+├─ utils/                  # Core modules
+│  ├─ common/              # Shared utilities (logging, config loaders, types)
+│  ├─ ui/                  # User interface layer (FastAPI, Streamlit, etc.)
+│  ├─ retriever/           # Retriever logic (Weaviate client, hybrid search)
+│  ├─ features/            # Feature engineering for XGBoost
+│  ├─ models/              # XGBoost + LLM wrappers
+│  └─ pipelines/           # Orchestration of retriever → ranker → LLM
+├─ tests/                  # Unit tests for each module
+├─ data/                   # Raw & processed datasets (gitignored)
 │  ├─ raw/
 │  └─ processed/
-└─ models_store/               # saved XGB, tokenizers, etc. (gitignored)
+└─ models_store/           # Saved ML models / embeddings (gitignored)
 ```
