@@ -13,7 +13,8 @@ CinemaRAG is a retrieval-augmented movie recommendation system that combines hyb
 - The project demonstrates how to integrate vector databases, ML models, and LLMs into a clean modular pipeline for professional RAG applications.
 
 ## CinemaRAG Workflow Diagram
-![CinemaRAG Workflow][docs/images/workflow.svg]
+![CinemaRAG Workflow](docs/images/workflow.svg)
+
 
 The CinemaRAG workflow starts with user input, which is cleaned and embedded for retrieval. A hybrid search over the vector database surfaces the most relevant documents. These results are combined with recommendations from an XGBoost model and formatted into an augmented prompt. Finally, the LLM generates the output response, tailored to the user’s preferences.
 
