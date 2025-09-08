@@ -1,3 +1,3 @@
-from .recommend import RecommendPipeline
+# from .recommend import RecommendPipeline
 
-__all__ = ["RecommendPipeline"]
+# __all__ = ["RecommendPipeline"]
