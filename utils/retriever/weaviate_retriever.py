@@ -22,24 +22,6 @@ class WeaviateRetriever:
         self.alpha = alpha
         self.model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 
-        # 1) Wait for REST readiness: accept ANY 200 (body may be empty on 1.25.x)
-        # scheme = "https" if use_tls else "http"
-        # url = f"{scheme}://{host}:{http_port}/v1/.well-known/ready"
-        # deadline = time.time() + wait_ready_seconds
-        # last_err = None
-        # while time.time() < deadline:
-        #     try:
-        #         with urllib.request.urlopen(url, timeout=2) as r:
-        #             if r.status == 200:
-        #                 break
-        #     except Exception as e:
-        #         last_err = e
-        #         time.sleep(1)
-        # don't hard-fail here; we'll try connecting anyway. Only raise if absolutely nothing worked:
-        # if last_err and time.time() >= deadline: raise RuntimeError(f"Weaviate not READY at {url}: {last_err}")
-
-        # 2) Connect (v4 needs HTTP + gRPC)
-
         conn_kwargs = dict(
             http_host=host, http_port=http_port, http_secure=use_tls,
             grpc_host=host, grpc_port=grpc_port, grpc_secure=use_tls,
