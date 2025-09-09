@@ -66,3 +66,8 @@ project/
 │  └─ processed/
 └─ models_store/           # Saved ML models / embeddings (gitignored)
 ```
+
+
+## Contributors
+- Derick-Louie Trinidad (maintainer)
+- Chelsey Toribio (collaborator)

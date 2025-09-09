@@ -33,7 +33,6 @@ class WeaviateRetriever:
         self.client = weaviate.connect_to_custom(**conn_kwargs)
         print("✅ Connected to Weaviate client")
         
-        # 3) Verify the collection exists
         if self.index not in self.client.collections.list_all():
             self.client.close()
             raise RuntimeError(
