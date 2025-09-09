@@ -13,7 +13,7 @@ WEAVIATE_GRPC_PORT = int(os.getenv("WEAVIATE_GRPC_PORT", "50051"))
 CSV_PATH = os.getenv("CSV_PATH", "./data/raw/netflix/netflix_titles.csv")
 CLASS = os.getenv("WEAVIATE_CLASS", "Movies")
 
-print("CONNECTING TO CLIENT")
+print(f"CONNECTING TO CLIENT {WEAVIATE_HTTP_PORT}")
 client = weaviate.connect_to_custom(
     http_host=WEAVIATE_HOST, http_port=WEAVIATE_HTTP_PORT, http_secure=False,
     grpc_host=WEAVIATE_HOST, grpc_port=WEAVIATE_GRPC_PORT, grpc_secure=False,

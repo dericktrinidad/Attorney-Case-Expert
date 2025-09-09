@@ -4,28 +4,32 @@ services:
   weaviate:
     image: cr.weaviate.io/semitechnologies/weaviate:1.25.6
     restart: unless-stopped
-  environment:
-    AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
-    DEFAULT_VECTORIZER_MODULE: "none"
-    PERSISTENCE_DATA_PATH: "/var/lib/weaviate"
-    CLUSTER_HOSTNAME: "node1"
+    environment:
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
+      DEFAULT_VECTORIZER_MODULE: "none"
+      PERSISTENCE_DATA_PATH: "/var/lib/weaviate"
+      CLUSTER_HOSTNAME: "node1"
     ports:
-      - "8080:8080"
-      - "50051:50051"  # gRPC
-  volumes:
-    - weaviate-data:/var/lib/weaviate
+      - "8080:8080"      # host->container (REST)
+      - "50051:50051"     # host->container (gRPC)
+    volumes:
+      - weaviate-data:/var/lib/weaviate
+
   app:
     build:
       context: ..
       dockerfile: docker/Dockerfile.app
     restart: unless-stopped
     depends_on:
-      - weaviate    # ✅ simple dependency (no health requirement)
+      - weaviate
     environment:
-      WEAVIATE_HOST: weaviate
-      WEAVIATE_PORT: 8080
+      WEAVIATE_HOST: weaviate            # service name on the compose network
+      WEAVIATE_PORT: 8080                # container port (keep 8080 here)
+      WEAVIATE_GRPC_PORT: 50051          # container port
       WEAVIATE_CLASS: Movies
       HYBRID_ALPHA: "0.6"
-ports:
-  - "18001:8001"   # app
-  - "18080:8080"   # weaviate
+    ports:
+      - "8001:8001"                     # host->container (app)
+
+volumes:
+  weaviate-data: {}

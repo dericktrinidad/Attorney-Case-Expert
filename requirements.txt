@@ -1,4 +1,4 @@
-weaviate-client~=4.6
+weaviate-client>=4.7,<5
 sentence-transformers>=3.0
 accelerate>=0.33
 faiss-cpu>=1.8.0
