@@ -43,6 +43,22 @@ pip install -r requirements.txt
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126
 ```
 
+## Managing Docker
+
+Build containers with docker-compose.yaml
+```Bash & Start
+sudo docker-compose -f docker/docker-compose.yml up --build -d
+```
+Stop & Remove Containers
+```Bash
+sudo docker-compose -f docker/docker-compose.yml down
+```
+View Logs
+```Bash
+sudo docker-compose -f docker/docker-compose.yml logs -f
+```
+
+
 ## 🗂️ WorkFlow Hierarchy
 
 
@@ -66,7 +82,6 @@ project/
 │  └─ processed/
 └─ models_store/           # Saved ML models / embeddings (gitignored)
 ```
-
 
 ## Contributors
 - Derick-Louie Trinidad (maintainer)

@@ -6,3 +6,4 @@ weaviate-client>=4.7,<5
 sentence-transformers==3.0.1
 torch>=2.2.0      # CPU wheel; pip will fetch the correct one
 tqdm>=4.66.0      # nice-to-have, optional
+arize-phoenix

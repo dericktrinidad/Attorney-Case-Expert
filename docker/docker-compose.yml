@@ -15,6 +15,16 @@ services:
     volumes:
       - weaviate-data:/var/lib/weaviate
 
+  pheonix:
+    image: arizephoenix/phoenix:latest
+    ports:
+      - "6006:6006"
+      - "4317:4317"
+    environment:
+      PHEONIX_WORKING_DIR: /mnt/data
+    volumes:
+      - pheonix_data:/mnt/data
+
   app:
     build:
       context: ..
@@ -33,3 +43,4 @@ services:
 
 volumes:
   weaviate-data: {}
+  pheonix_data: {}

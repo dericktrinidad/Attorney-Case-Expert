@@ -35,7 +35,7 @@ class Hit(BaseModel):
 class SearchResponse(BaseModel):
     results: List[Hit]
 
-# --------- Lifespan (single init attempt, no loops) ---------
+# --------- Lifespan ---------
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     retriever = None
@@ -50,7 +50,6 @@ async def lifespan(app: FastAPI):
         )
         print("[startup] Retriever initialized")
     except Exception as e:
-        # Boot the API anyway; /search will 503 until retriever is available
         print(f"[startup] Retriever init failed: {e}")
         retriever = None
 
