@@ -1,0 +1,1 @@
+from .hf_infer import HFModelManager
