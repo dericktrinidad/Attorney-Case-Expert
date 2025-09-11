@@ -5,7 +5,25 @@ from typing import Any, Callable, Dict, Optional, Sequence
 from opentelemetry import trace
 from opentelemetry.trace.status import Status, StatusCode
 from openinference.semconv.trace import SpanAttributes
+from openinference.semconv.resource import ResourceAttributes
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 
+
+def init_tracing(service_name: str = "cinemaRAG-app", endpoint: str = "http://localhost:4317"):
+    # projects = Resource.create({"service.name": service_name, "project.name": service_name})
+    resource = Resource(attributes={
+            ResourceAttributes.PROJECT_NAME: service_name
+        })
+    provider = TracerProvider(resource=resource)
+    exporter = OTLPSpanExporter(
+        endpoint=endpoint,
+        insecure=True)
+    provider.add_span_processor(BatchSpanProcessor(exporter))
+    trace.set_tracer_provider(provider)
+    
 def instrument(
     *,
     kind: str,
@@ -50,28 +68,15 @@ def instrument(
                                 span.set_attribute(SpanAttributes.INPUT_VALUE, str(inp))
                         except Exception as e:
                             span.add_event("input_getter_error", {"error": repr(e)})
-                    
+
                     result = func(*args, **kwargs)
                     #Log Docs
-                    if docs_getter:
+                    if output_getter:
                         try:
-                            docs = docs_getter(result) or []
-                            for i, doc in enumerate(docs[:max_doc_events]):
-                                doc_id = doc.get("id", f"doc_{i}")
-                                text = doc.get("text") or doc.get("content") or ""
-                            else:
-                                doc_id = f"doc_{i}"
-                                text = str(doc)
-                            span.add_event(
-                                "retrieved_document",
-                                    {
-                                        "document.id": str(doc_id),
-                                        "document.content": str(text)[:500],
-                                        "document.rank": i,
-                                    },
-                            )                            
+                            docs = output_getter(result) or []
+                            span.set_attribute(SpanAttributes.OUTPUT_VALUE, str(docs[:3])[:2000])                   
                         except Exception as e:
-                            span.add_event("docs_getter_error", {"error": repr(e)})
+                            span.add_event("output_getter_error", {"error": repr(e)})
                     return result
                 
                 except Exception as e:

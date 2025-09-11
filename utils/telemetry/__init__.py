@@ -4,6 +4,7 @@ from .decorators import (
     instrument_retriever,
     instrument_llm,
     instrument_reranker,
+    init_tracing
 )
 
 __all__ = [
@@ -11,4 +12,5 @@ __all__ = [
     "instrument_retriever",
     "instrument_llm",
     "instrument_reranker",
+    "init_tracing"
 ]

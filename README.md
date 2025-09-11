@@ -25,22 +25,41 @@ Make sure you are using Python 3.10 (recommended for best compatibility). You ca
 
 ### Create Conda Setup
 ```Bash
-conda create -n {ENV_NAME} python=3.10 -y
+conda create -n {ENV_NAME} python=3.11 -y
 conda activate {ENV_NAME}
 ```
-### Create Virtual environment
-```Bash
-python3.10 -m venv .venv
-source .venv/bin/activate   # On Linux/Mac
-.venv\Scripts\activate      # On Windows
-```
+
 ### Install dependencies:
 ```Bash
 git clone https://github.com/your-username/cinemarag.git
 cd cinemarag
+```
+##### Pip Install Pytorch
+```Bash
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+```
+##### Pip install Huggingface Stack
+```Bash
+pip install "transformers==4.45.1" accelerate==0.29.3 safetensors>=0.4.3 huggingface_hub>=0.23 bitsandbytes
+```
+##### Rebuild Nemotron's Custom Ops
+```bash
+export TORCH_CUDA_ARCH_LIST="8.6"   # RTX 3080 Ti
+export TORCH_CUDA_ARCH_LIST="8.9"   # RTX 4070 Ti
 
+pip install --no-build-isolation --no-cache-dir \
+causal-conv1d==1.5.2 mamba-ssm==2.2.5
+```
+
+##### Pip Install CinemaRAG dependencies
+```Bash
 pip install -r requirements.txt
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126
+```
+
+##### Test Torch and Mamba Setup
+```bash
+python -c "import torch; print(torch.__version__, torch.version.cuda)"
+python -c "import mamba_ssm, causal_conv1d; print('✅ Mamba stack OK')"
 ```
 
 ## Managing Docker
