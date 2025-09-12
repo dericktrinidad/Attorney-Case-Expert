@@ -21,7 +21,7 @@ The CinemaRAG workflow starts with user input, which is cleaned and embedded for
 
 ## 🚀 Setup
 
-Make sure you are using Python 3.10 (recommended for best compatibility). You can create a virtual environment first:
+Make sure you are using Python 3.10 (recommended for best compatibility). You can create a conda environment first:
 
 ### Create Conda Setup
 ```Bash
