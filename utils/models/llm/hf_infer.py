@@ -21,6 +21,7 @@ class ChatMessage(TypedDict):
 Messages = List[ChatMessage]
 
 # Init Configs
+@dataclass
 class HFLoadConfig:
     model_id: str
     dtype: Literal["auto", "fp16", "bf16"] = "fp16"
