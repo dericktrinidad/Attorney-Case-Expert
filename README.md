@@ -1,26 +1,27 @@
-# CinemaRAG 🎬
+# Attorney Case Expert (ACE)🕵️‍♂️
 
-CinemaRAG is a retrieval-augmented movie recommendation system that combines hybrid search with Weaviate, XGBoost ranking, and a final LLM reasoning layer.
+## Problem Statement
 
-- Retriever → performs hybrid semantic + keyword search over a movie database (plots, genres, metadata).
+Investigative departments face an overwhelming volume of case files stored across physical archives and digital silos. Manually searching and reviewing these documents is slow, labor-intensive, and often impractical, limiting investigators’ ability to quickly uncover relevant information.
 
-- Ranker (XGBoost) → scores candidate movies using engineered features (retrieval scores, metadata signals).
+Building an AI-driven Document Assistant (ADA) requires overcoming unique challenges with unstructured and sensitive case data, including:
 
-- LLM layer → refines results, adds natural-language explanations, and personalizes recommendations.
+Scanned PDFs and Images: Converting legacy documents into reliable text with OCR.
 
-- User Interface → lightweight API/UI for querying (e.g., “recommend me a sci-fi movie with time travel”).
+Unlabeled Records: Inferring context and metadata when files lack clear structure.
 
-- The project demonstrates how to integrate vector databases, ML models, and LLMs into a clean modular pipeline for professional RAG applications.
+Inconsistent Formatting: Normalizing handwritten notes, forms, and irregular layouts.
 
-## CinemaRAG Workflow Diagram
-![CinemaRAG Workflow](docs/images/workflow.svg)
+Redundancy: Detecting and consolidating duplicate or near-duplicate records.
+
+Confidentiality: Enforcing strict role-based access and data security.
 
 
-The CinemaRAG workflow starts with user input, which is cleaned and embedded for retrieval. A hybrid search over the vector database surfaces the most relevant documents. These results are combined with recommendations from an XGBoost model and formatted into an augmented prompt. Finally, the LLM generates the output response, tailored to the user’s preferences.
+## Solution – Attorney Case Expert (ACE)
 
+ACE streamlines legal research by enabling natural-language search over a vectorized case law database. Attorneys and investigators can ask questions such as “find recent fraud cases involving wire transfers in the last five years”, and ACE retrieves the most relevant opinions, ranks them by context, and generates concise LLM-driven summaries with citations and actionable insights.
 
 ## 🚀 Setup
-
 Recommended Version == Python 3.11
 
 ### Create Conda Setup
@@ -31,35 +32,16 @@ conda activate {ENV_NAME}
 
 ### Install dependencies:
 ```Bash
-git clone https://github.com/your-username/cinemarag.git
-cd cinemarag
+git clone https://github.com/dericktrinidad/Attorney-Case-Expert.git
 ```
 ##### Pip Install Pytorch
 ```Bash
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 ```
-##### Pip install Huggingface Stack
-```Bash
-pip install "transformers==4.45.1" accelerate==0.29.3 safetensors>=0.4.3 huggingface_hub>=0.23 bitsandbytes
-```
-##### Rebuild Nemotron's Custom Ops
-```bash
-export TORCH_CUDA_ARCH_LIST="8.6"   # RTX 3080 Ti
-export TORCH_CUDA_ARCH_LIST="8.9"   # RTX 4070 Ti
-
-pip install --no-build-isolation --no-cache-dir \
-causal-conv1d==1.5.2 mamba-ssm==2.2.5
-```
 
 ##### Pip Install CinemaRAG dependencies
 ```Bash
 pip install -r requirements.txt
-```
-
-##### Test Torch and Mamba Setup
-```bash
-python -c "import torch; print(torch.__version__, torch.version.cuda)"
-python -c "import mamba_ssm, causal_conv1d; print('✅ Mamba stack OK')"
 ```
 
 ## Managing Docker
@@ -76,32 +58,3 @@ View Logs
 ```Bash
 sudo docker-compose -f docker/docker-compose.yml logs -f
 ```
-
-
-## 🗂️ WorkFlow Hierarchy
-
-
-```Bash
-project/
-├─ main.py                 # Entry point – wires together pipeline
-├─ pyproject.toml          # Project metadata & dependencies
-├─ README.md               # Project description & setup guide
-├─ configs/                # YAML/JSON configs for retriever, models, logging
-│  └─ config.yaml
-├─ utils/                  # Core modules
-│  ├─ common/              # Shared utilities (logging, config loaders, types)
-│  ├─ ui/                  # User interface layer (FastAPI, Streamlit, etc.)
-│  ├─ retriever/           # Retriever logic (Weaviate client, hybrid search)
-│  ├─ features/            # Feature engineering for XGBoost
-│  ├─ models/              # XGBoost + LLM wrappers
-│  └─ pipelines/           # Orchestration of retriever → ranker → LLM
-├─ tests/                  # Unit tests for each module
-├─ data/                   # Raw & processed datasets (gitignored)
-│  ├─ raw/
-│  └─ processed/
-└─ models_store/           # Saved ML models / embeddings (gitignored)
-```
-
-## Contributors
-- Derick-Louie Trinidad (maintainer)
-- Chelsey Toribio (collaborator)
