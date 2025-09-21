@@ -12,7 +12,7 @@ from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 
 
-def init_tracing(service_name: str = "cinemaRAG-app", endpoint: str = "http://localhost:4317"):
+def init_tracing(service_name: str = "ACE-app", endpoint: str = "http://localhost:4317"):
     # projects = Resource.create({"service.name": service_name, "project.name": service_name})
     resource = Resource(attributes={
             ResourceAttributes.PROJECT_NAME: service_name
@@ -32,7 +32,7 @@ def instrument(
     input_getter: Optional[Callable[..., Any]] = None,
     output_getter: Optional[Callable[[Any], Any]] = None,
     docs_getter: Optional[Callable[[Any], Sequence[Dict[str, Any]]]] = None,
-    tracer_name: str = "cinemaRAG",
+    tracer_name: str = "ACE",
     max_doc_events: int = 5,
     ):
     """
