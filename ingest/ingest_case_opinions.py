@@ -39,14 +39,21 @@ def _clean_txt(text: str) -> str:
     text = re.sub(r" {2,}", " ", text)
     return text.strip()
 
-def stream_opinions(limit=300, start_url="https://www.courtlistener.com/api/rest/v4/opinions/?order_by=-date_filed"):
+def stream_opinions(limit=100_000, start_url="https://www.courtlistener.com/api/rest/v4/opinions/?order_by=-date_filed"):
     url, seen = start_url, 0
     # with tqdm(total=limit, desc="Fetching Court Opinions") as pbar:
     while url and seen < limit:
-        r = requests.get(url, headers=H, timeout=60); r.raise_for_status()
-        j = r.json()
+        try:
+            r = requests.get(url, headers=H, timeout=60); r.raise_for_status()
+            j = r.json()
+            url = j.get("next")
+        except requests.exceptions.RequestException as e:
+            print(f"Request failed for UTL {url}")
+            # url = None
+            continue
         for op in j["results"]:
             text = op.get("plain_text") #or op.get("html") or op.get("html_with_citations")
+            title = op.get('absolute_url').split('/')[-2]
             if not text:
                 continue
             text = _clean_txt(text)
@@ -55,7 +62,7 @@ def stream_opinions(limit=300, start_url="https://www.courtlistener.com/api/rest
                 court = court.get("name") or court.get("id") or ""
             yield {
                 "id": str(op["id"]),
-                "title": op.get("case_name", "Untitled"),
+                "title": title,
                 "court": op.get("court"),
                 "date_filed": op.get("date_filed"),
                 "url": "https://www.courtlistener.com" + (op.get("absolute_url") or ""),
@@ -65,7 +72,7 @@ def stream_opinions(limit=300, start_url="https://www.courtlistener.com/api/rest
             if seen >= limit: 
                 break
             
-        url = j.get("next")
+        # url = j.get("next")
         if not url:
             break
         time.sleep(0.25)
@@ -98,13 +105,14 @@ try:
     model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
     
     class_name = "LegalOpinion"
+    N_CASES = 1000
     with cases.batch.dynamic() as batch:
         # batch.batch_size = 32
-        for doc in tqdm(stream_opinions(limit=200), desc="Ingesting to Weaviate"):
+        for doc in tqdm(stream_opinions(limit=N_CASES), total=N_CASES, desc="Ingesting to Weaviate"):
             uid = generate_uuid5(f"{doc.get('title','')}::{doc.get('date_filed',0)}::{doc.get('id',0)}")
             
             vec = model.encode(doc["text"]).astype(float32)
-            # print("TEXT: ", doc["text"])
+            
             prop = {
                 "title": doc["title"],
                 "court": doc["court"] or "",
