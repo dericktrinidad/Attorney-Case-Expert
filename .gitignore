@@ -3,6 +3,10 @@ data/
 datasets/
 *.db
 
+# Huggingface Finetuning Custom Models
+finetuning/
+models
+
 # Python cache
 __pycache__/
 *.py[cod]

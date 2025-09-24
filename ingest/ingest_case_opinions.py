@@ -39,14 +39,14 @@ def _clean_txt(text: str) -> str:
     text = re.sub(r" {2,}", " ", text)
     return text.strip()
 
-def stream_opinions(limit=100_000, start_url="https://www.courtlistener.com/api/rest/v4/opinions/?order_by=-date_filed"):
+def stream_opinions(limit=100_000, start_url="https://www.courtlistener.com/api/rest/v4/opinions/??jurisdiction=ny&order_by=-date_filed"):
     url, seen = start_url, 0
     # with tqdm(total=limit, desc="Fetching Court Opinions") as pbar:
     while url and seen < limit:
         try:
             r = requests.get(url, headers=H, timeout=60); r.raise_for_status()
             j = r.json()
-            url = j.get("next")
+            # url = j.get("next")
         except requests.exceptions.RequestException as e:
             print(f"Request failed for UTL {url}")
             # url = None
@@ -72,7 +72,7 @@ def stream_opinions(limit=100_000, start_url="https://www.courtlistener.com/api/
             if seen >= limit: 
                 break
             
-        # url = j.get("next")
+        url = j.get("next")
         if not url:
             break
         time.sleep(0.25)

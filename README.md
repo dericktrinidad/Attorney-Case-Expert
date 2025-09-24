@@ -44,10 +44,21 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 pip install -r requirements.txt
 ```
 
+## Fine-Tuning LLMs
+
+```Bash
+python ./finetuning/train_ace_irac_lora.py \
+  --model_id Qwen/Qwen2.5-7B-Instruct \
+  --data_path ./data/raw/ace_irac_sft.jsonl \
+  --output_dir ./finetuning/ace-irac-lora-qwen7b \
+  --epochs 2 --batch_size 1 --grad_accum 16 --lr 2e-4 \
+  --qlora_r 8 --use_qlora
+```
+
 ## Managing Docker
 
 Build containers with docker-compose.yaml
-```Bash & Start
+```Bash
 sudo docker-compose -f docker/docker-compose.yml up --build -d
 ```
 Stop & Remove Containers
