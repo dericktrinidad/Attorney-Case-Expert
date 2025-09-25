@@ -8,6 +8,7 @@ os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:256,expandable_segmen
 
 #Initialize Arize-Pheonix 
 init_tracing()
+wr = WeaviateRetriever()
 
 @instrument_llm(
     name="test_llm",
@@ -26,13 +27,12 @@ def test_hf_model(query, model_id="Qwen/Qwen2.5-14B-Instruct"):
     output_getter=lambda out: out
 )
 def test_retriever(query):
-    wr = WeaviateRetriever()
+    
     out = wr.retrieve_hybrid(query)
     wr.close()
     return out
 
-def main():
-    query = "Is a brief seizure to check ID permissible absent reasonable suspicion?"
+def initial_prompt(query):
     prompt = f'''SYSTEM: You extract search terms for a legal vector+BM25 hybrid retriever.
 
     Rules:
@@ -52,6 +52,27 @@ def main():
     "expansions": [string],
     "negatives": [string]
     }}'''
+    return prompt
+
+def summarize_opinion_prompt(opinion, user_query):
+    
+    prompt = f"""
+    You are a legal assistant. Read the following court opinion and extract the most important key phrases,
+    concepts, and terms that summarize what the opinion is about. Keep the output concise and easy to scan.
+
+    User Query:
+    {user_query}
+    
+    Court Opinion:
+    {opinion}
+
+    Key Phrases:
+    """
+    return prompt
+
+def main():
+    query = "Is a brief seizure to check ID permissible absent reasonable suspicion?"
+    prompt = initial_prompt(query)
     messages = [{"role": "user", "content": prompt}]
     case_keywords = test_hf_model(messages, model_id="Qwen/Qwen2.5-14B-Instruct")
     
@@ -61,5 +82,11 @@ def main():
         title = doc.get("title", "Untitled")
         score = doc.get("_score", None)
         print(f"{title} (score={score:.4f})" if score is not None else title)
+        
+    best_doc = out[0]
+    opinion_prompt = summarize_opinion_prompt(f"Title: {best_doc.get('title')} Opinion:{best_doc.get('text')}", query)
+    opinion_phrases = test_hf_model(opinion_prompt, model_id="Qwen/Qwen2.5-14B-Instruct")
+    print(opinion_phrases)
+    
 if __name__ == "__main__":
     main()
