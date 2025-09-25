@@ -1,92 +1,23 @@
 from utils.retriever import WeaviateRetriever
-from utils.telemetry import init_tracing, instrument_retriever, instrument_llm
+from utils.telemetry import init_tracing
+from utils.pipelines.ragservice import RAGService
 from utils.models.llm.hf_infer import HFModelManager, HFLoadConfig, GenerateConfig
+import torch
+torch.cuda.empty_cache()
 
-import os
-os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
-os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:256,expandable_segments:True"
-
-#Initialize Arize-Pheonix 
-init_tracing()
-wr = WeaviateRetriever()
-
-@instrument_llm(
-    name="test_llm",
-    input_getter=lambda query, **_: query,
-    output_getter=lambda out: out
-)
-def test_hf_model(query, model_id="Qwen/Qwen2.5-14B-Instruct"):
-    mgr = HFModelManager(HFLoadConfig(model_id=model_id))
-    out = mgr.make_inference(query, GenerateConfig())
-    print(out)
-    return out
-    
-@instrument_retriever(
-    name='test_retriever',
-    input_getter=lambda query, **_: query,
-    output_getter=lambda out: out
-)
-def test_retriever(query):
-    
-    out = wr.retrieve_hybrid(query)
-    wr.close()
-    return out
-
-def initial_prompt(query):
-    prompt = f'''SYSTEM: You extract search terms for a legal vector+BM25 hybrid retriever.
-
-    Rules:
-    - Return ONLY a JSON object. No prose.
-    - Include: keywords (unigrams), key_phrases (multi-word), entities (case names, statutes), negatives (stop-words to ignore), expansions (common synonyms/abbrevs).
-    - Preserve exact legal phrases (e.g., “reasonable suspicion”, “stop and frisk”).
-    - Use lowercase except proper names/citations.
-    - No hallucinations; don’t invent case names/citations.
-
-    USER QUERY: "{query}"
-
-    OUTPUT JSON SCHEMA:
-    {{
-    "keywords": [string],
-    "key_phrases": [string],
-    "entities": [string],
-    "expansions": [string],
-    "negatives": [string]
-    }}'''
-    return prompt
-
-def summarize_opinion_prompt(opinion, user_query):
-    
-    prompt = f"""
-    You are a legal assistant. Read the following court opinion and extract the most important key phrases,
-    concepts, and terms that summarize what the opinion is about. Keep the output concise and easy to scan.
-
-    User Query:
-    {user_query}
-    
-    Court Opinion:
-    {opinion}
-
-    Key Phrases:
-    """
-    return prompt
+def build_service():
+    #Initialize Arize-Pheonix
+    init_tracing(service_name="ace-app")
+    retriever = WeaviateRetriever()
+    cfg = GenerateConfig()
+    llm_cfg = HFLoadConfig(model_id="Qwen/Qwen2.5-7B-Instruct")
+    return RAGService(cfg=cfg, llm_cfg=llm_cfg, retriever=retriever)
 
 def main():
-    query = "Is a brief seizure to check ID permissible absent reasonable suspicion?"
-    prompt = initial_prompt(query)
-    messages = [{"role": "user", "content": prompt}]
-    case_keywords = test_hf_model(messages, model_id="Qwen/Qwen2.5-14B-Instruct")
-    
-    out = test_retriever(case_keywords)
-    
-    for doc in out:
-        title = doc.get("title", "Untitled")
-        score = doc.get("_score", None)
-        print(f"{title} (score={score:.4f})" if score is not None else title)
-        
-    best_doc = out[0]
-    opinion_prompt = summarize_opinion_prompt(f"Title: {best_doc.get('title')} Opinion:{best_doc.get('text')}", query)
-    opinion_phrases = test_hf_model(opinion_prompt, model_id="Qwen/Qwen2.5-14B-Instruct")
-    print(opinion_phrases)
+    svc = build_service()
+    query = "What are the consiquences for theft?"
+    out = svc.run_pipeline(query)
+    print(out)
     
 if __name__ == "__main__":
     main()
