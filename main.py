@@ -2,6 +2,10 @@ from utils.retriever import WeaviateRetriever
 from utils.telemetry import init_tracing, instrument_retriever, instrument_llm
 from utils.models.llm.hf_infer import HFModelManager, HFLoadConfig, GenerateConfig
 
+import os
+os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:256,expandable_segments:True"
+
 #Initialize Arize-Pheonix 
 init_tracing()
 

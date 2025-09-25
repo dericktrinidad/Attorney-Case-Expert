@@ -77,7 +77,8 @@ class HFModelManager:
         
         self.model = AutoModelForCausalLM.from_pretrained(
             self.cfg.model_id,
-            torch_dtype = _to_torch_dtype(self.cfg.dtype),
+            # torch_dtype = _to_torch_dtype(self.cfg.dtype),
+            dtype= _to_torch_dtype(self.cfg.dtype),
             device_map=self.cfg.device_map,
             quantization_config=quant_cfg,
             low_cpu_mem_usage=True,

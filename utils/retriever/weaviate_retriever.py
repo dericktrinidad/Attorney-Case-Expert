@@ -64,14 +64,14 @@ class WeaviateRetriever:
         out: List[Dict[str, Any]] = self._format_results(res)
         return out
     
-    def _format_results(self, res, snippet_chars: int = 1000):
+    def _format_results(self, res):
         out= []
         for obj in (res.objects or []):
             p = obj.properties or {}
             txt = p.get("text", "")
             out.append({
                 "title": p.get("title"),
-                "court": p.get("court"),
+                # "court": p.get("court"),
                 "date_filed": p.get("date_filed"),
                 "url": p.get("url"),
                 "text": txt,
