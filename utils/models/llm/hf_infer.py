@@ -5,9 +5,11 @@ from typing import List, Dict, Literal, Optional, Union, TypedDict, Any
 from transformers import (
     AutoTokenizer,
     AutoModelForCausalLM,
-    BitsAndBytesConfig
+    BitsAndBytesConfig,
+    pipeline
 )
 import torch, os
+from peft import PeftModel
 
 # os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
@@ -23,7 +25,8 @@ Messages = List[ChatMessage]
 # Init Configs
 @dataclass
 class HFLoadConfig:
-    model_id: str
+    base_model_id: str
+    irac_model_id: str = "None"
     dtype: Literal["auto", "fp16", "bf16"] = "fp16"
     device_map: str="auto"
     load_in_4bit: bool = True
@@ -73,10 +76,10 @@ class HFModelManager:
                 bnb_4bit_use_double_quant=self.cfg.bnb_4bit_use_double_quant,
                 bnb_4bit_type=self.cfg.bnb_4bit_type,
             )
-        self.tok = AutoTokenizer.from_pretrained(self.cfg.model_id, use_fast=True)
+        self.tok = AutoTokenizer.from_pretrained(self.cfg.base_model_id, use_fast=True)
         
         self.model = AutoModelForCausalLM.from_pretrained(
-            self.cfg.model_id,
+            self.cfg.base_model_id,
             # torch_dtype = _to_torch_dtype(self.cfg.dtype),
             dtype= _to_torch_dtype(self.cfg.dtype),
             device_map=self.cfg.device_map,
@@ -94,6 +97,37 @@ class HFModelManager:
             
         self.model.config.use_cache = True
     
+    def load_irac(self):
+        self.load() # load_base model
+        model = PeftModel.from_pretrained(self.model, self.cfg.irac_model_id)
+
+        # Create text generation pipeline
+        self.generator = pipeline(
+            "text-generation",
+            model=model,
+            tokenizer=self.tok,
+            device_map="auto"
+        )
+        
+    def make_irac_inference(
+            self,
+            message_or_prompt: Union[Messages, str],
+            gen_cfg: Optional[GenerateConfig] = None
+        ) -> str:
+        self.load_irac()
+        gen_cfg = gen_cfg or GenerateConfig()
+        outputs = self.generator(
+            message_or_prompt,
+            max_new_tokens=400,
+            temperature=0.4,
+            top_p=0.9,
+            do_sample=True,
+            repetition_penalty=1.05,
+            eos_token_id=self.tok.eos_token_id
+        )
+        return outputs[0]["generated_text"]
+        
+        
     def make_inference(
             self,
             messages_or_prompt: Union[Messages, str],

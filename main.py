@@ -6,11 +6,15 @@ import torch
 torch.cuda.empty_cache()
 
 def build_service():
-    #Initialize Arize-Pheonix
-    init_tracing(service_name="ace-app")
+    #Initialize Arize-Pheonix http://127.0.0.1:6006
+    init_tracing(service_name="ace-app-1")
     retriever = WeaviateRetriever()
     cfg = GenerateConfig()
-    llm_cfg = HFLoadConfig(model_id="Qwen/Qwen2.5-7B-Instruct")
+    model_kwargs = {
+        'base_model_id': "Qwen/Qwen2.5-7B-Instruct",
+        'irac_model_id': "./finetuning/models/ace-irac-lora-qwen7b"
+    }
+    llm_cfg = HFLoadConfig(**model_kwargs)
     return RAGService(cfg=cfg, llm_cfg=llm_cfg, retriever=retriever)
 
 def main():
