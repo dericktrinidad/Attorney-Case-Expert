@@ -69,3 +69,17 @@ View Logs
 ```Bash
 sudo docker-compose -f docker/docker-compose.yml logs -f
 ```
+
+## Ingest Case Opinions
+
+Run python script to populate weaviate vector database with case opinions
+
+``` Bash
+python ./ingest/ingest_case_opinions_df.py
+```
+
+## Run Pipeline
+
+``` Bash
+python main.py
+```

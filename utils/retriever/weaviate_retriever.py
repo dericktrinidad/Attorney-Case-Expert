@@ -57,6 +57,7 @@ class WeaviateRetriever:
         res = self.collection.query.bm25(query=query_text, limit=top_k, return_metadata=MetadataQuery(score=True))
         out: List[Dict[str, Any]] = self._format_results(res)
         return out
+    
     def retrieve_semantic(self, query_text: str, top_k: int = 10,) -> List[Dict[str, Any]]:
         vec = self.model.encode(query_text, normalize_embeddings=True).tolist()
         res = self.collection.query.near_vector(vec, limit=top_k,
