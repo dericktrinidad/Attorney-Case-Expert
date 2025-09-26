@@ -1,5 +1,6 @@
 import os, time, urllib.request
 from tqdm import tqdm
+from uuid import uuid5, NAMESPACE_URL
 import pandas as pd
 import weaviate
 from weaviate.classes.config import Configure, Property, DataType
@@ -10,7 +11,7 @@ from dotenv import load_dotenv
 import requests
 from numpy import float32
 import re
-from typing import List
+from typing import List, Dict, Any
 # load_dotenv()
 # TOKEN = os.getenv("COURTLISTENER_API_KEY")
 # point to your env file
@@ -56,7 +57,13 @@ class TokenizeOpinions:
         text = re.sub(r"[\n\r\t\f\v]+", " ", text)
         text = re.sub(r" {2,}", " ", text)
         return text.strip()
-            
+        
+    def stable_doc_id(self, doc: Dict[str, Any]) -> str:
+        base = f"{doc.get('title','')}::{doc.get('date_filed',0)}::{doc.get('id',0)}::{doc.get('absolute_url','')}"
+        return str(uuid5(NAMESPACE_URL, base))
+    def stable_chunk_uuid(self, doc_id: str, chunk_index: int) -> str:
+        return str(uuid5(NAMESPACE_URL, f"{doc_id}::chunk::{chunk_index}"))
+
     def ingest(self, top_opinions: List, index: str='batched_opinions'):
         try:
             # Create collection if missing (BYO vectors => VectorConfig.none)
@@ -81,33 +88,37 @@ class TokenizeOpinions:
                 
             cases = self.client.collections.get(index)
             
-            
+
             with cases.batch.dynamic() as batch:
                 for i, doc in tqdm(enumerate(top_opinions), total=len(df), desc="Ingesting to Weaviate"):
-                
-                    uid = generate_uuid5(f"{doc.get('title','')}::{doc.get('date_filed',0)}::{doc.get('id',0)}::{doc.get('absolute_url','')}::{i}")
-                    vec = self.tok.encode(doc["text"]).astype(float32)
-                    prop = {
-                        "title": doc["title"],
-                        "date_filed": self.norm_date(doc["date_filed"]) or "1970-01-01T00:00:00Z",
-                        "url": doc["absolute_url"],
-                        "text": self._clean_txt(doc["text"]),
-                        }
+                    full_text = self._clean_txt(doc["text"])
+                    if not full_text:
+                        continue
+                    doc_id = self.stable_doc_id(doc)
+                    chunks = self.chunk_text(full_text, max_tokens=1000, overlap=200)
+                    n = len(chunks)
                     
-                    batch.add_object(
-                        properties= prop,
-                        vector=vec,
-                        uuid=uid,
-                    )
-                    
-            collections = self.client.collections.list_all()
-            # print("Collections:", collections)
-            if index in collections:
-                class_obj = self.client.collections.get(index)
-                total = class_obj.aggregate.over_all(total_count=True).total_count
-                print(f"Collection '{index}' has {total} objects")
-            else:
-                print(f"⚠️ Collection '{index}' not found yet")
+                    for ci, chunk in enumerate(chunks):
+                        vec = self.tok.encode(chunk).astype(float32)
+                        uid = self.stable_chunk_uuid(doc_id, ci)
+                        props = {
+                            "doc_id": doc_id,
+                            "chunk_index": ci,
+                            "chunk_count": n,
+                            "title": doc.get("title", ""),
+                            "date_filed": self.norm_date(doc.get("date_filed")) or "1970-01-01T00:00:00Z",
+                            "url": doc.get("absolute_url") or doc.get("url") or "",
+                            "text": chunk,
+                            }
+                        batch.add_object(
+                            properties=props,
+                            vector=vec,
+                            uuid=uid
+                            )
+                        
+            class_obj = self.client.collections.get(index)
+            total = class_obj.aggregate.over_all(total_count=True).total_count
+            print(f"Collection '{index}' has {total} objects")
         finally:
             self.client.close()
             print("Client is Closed")
