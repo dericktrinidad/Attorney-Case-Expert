@@ -1,25 +1,25 @@
-# Attorney Case Expert (ACE)🕵️‍♂️
+# Attorney Case Expert (ACE) 🕵️‍♂️
 
 ## Problem Statement
 
-Investigative departments face an overwhelming volume of case files stored across physical archives and digital silos. Manually searching and reviewing these documents is slow, labor-intensive, and often impractical, limiting investigators’ ability to quickly uncover relevant information.
+Investigators and attorneys face an overwhelming volume of court opinions spread across jurisdictions and databases. Manually searching and reviewing these opinions is slow, labor-intensive, and often impractical, limiting the ability to quickly uncover relevant precedents.
 
-Building an AI-driven Document Assistant (ADA) requires overcoming unique challenges with unstructured and sensitive case data, including:
+Building an AI-driven Case Opinion Assistant (COA) requires overcoming unique challenges with unstructured legal text, including:
 
-Scanned PDFs and Images: Converting legacy documents into reliable text with OCR.
+- Lengthy documents: Parsing hundreds of pages per opinion.
 
-Unlabeled Records: Inferring context and metadata when files lack clear structure.
+- Complex legal language: Interpreting statutes, citations, and procedural context.
 
-Inconsistent Formatting: Normalizing handwritten notes, forms, and irregular layouts.
+- Inconsistent formatting: Handling variations across courts and jurisdictions.
 
-Redundancy: Detecting and consolidating duplicate or near-duplicate records.
+- Redundancy: Identifying duplicate or overlapping opinions across sources.
 
-Confidentiality: Enforcing strict role-based access and data security.
+- Relevance: Surfacing the most applicable rulings without overwhelming noise.
 
 
 ## Solution – Attorney Case Expert (ACE)
 
-ACE streamlines legal research by enabling natural-language search over a vectorized case law database. Attorneys and investigators can ask questions such as “find recent fraud cases involving wire transfers in the last five years”, and ACE retrieves the most relevant opinions, ranks them by context, and generates concise LLM-driven summaries with citations and actionable insights.
+ACE streamlines legal research by enabling natural-language search over a vectorized database of case opinions. Attorneys and investigators can ask questions such as “find recent fraud cases involving wire transfers in the last five years”, and ACE retrieves the most relevant opinions, ranks them by legal context, and generates concise LLM-driven summaries with citations. This empowers legal professionals to identify precedents faster, reduce manual review time, and focus on building stronger arguments.
 
 ## 🚀 Setup
 Recommended Version == Python 3.11
