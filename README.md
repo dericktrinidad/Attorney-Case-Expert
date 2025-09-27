@@ -83,3 +83,38 @@ python main.py --ingest 'path/to/opinions.csv'
 ``` Bash
 python main.py --query 'Input Query Here'
 ```
+
+## Run Example
+
+Prompt Example
+``` Bash
+python main.py --query "Do U.S. courts have jurisdiction over murders committed on the high seas if the vessel has no national flag or is held by pirates, and does it matter whether the offender or victim is an American citizen?"
+```
+
+Retriever (Top K = 5)
+``` Bash
+>>>United States v. Holmes (score=0.4000)
+>>>United States v. Holmes (score=0.3347)
+>>>United States v. Holmes (score=0.2905)
+>>>United States v. Flores (score=0.1729)
+>>>United States v. Furlong (score=0.1532)
+>>>United States v. Furlong (score=0.1532)
+```
+
+IRAC Model Summary Output
+``` Bash
+# Issue
+Whether U.S. courts have jurisdiction over murder on the high seas when committed on a vessel with no national flag or under piratical control, and whether citizenship of the offender or victim affects jurisdiction.
+
+# Rule
+Under the Act of April 30, 1790, U.S. courts have jurisdiction over felonies such as murder or robbery committed on the high seas, regardless of vessel nationality or offender/victim citizenship. Jurisdiction is excluded only when the vessel is in fact and in right the property of a foreign state subject to its control.
+
+# Application
+In United States v. Holmes and related precedents (Klintock’s Case, Furlong), the Court held that offenses committed aboard stateless or piratical vessels fall within U.S. jurisdiction. Citizenship of the parties is immaterial. The burden of proving a foreign national character for the vessel lies with the defendant.
+
+# Conclusion
+The courts of the United States have jurisdiction over such offenses.  
+The controlling case is **United States v. Holmes**.
+```
+
+

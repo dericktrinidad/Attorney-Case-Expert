@@ -120,7 +120,9 @@ class VectorizeOpinions:
                                 vector=vec,
                                 uuid=uid
                                 )
-                            pbar.set_postfix_str(f"{title[:40]} (chunk {ci+1}/{len(chunks)})")
+                            msg = f"(chunk {ci+1}/{len(chunks)}) {title[:40]}"
+                            # tqdm.write(msg)
+                            pbar.set_postfix_str(msg)
                         pbar.update(1)
                         
             class_obj = self.client.collections.get(index)

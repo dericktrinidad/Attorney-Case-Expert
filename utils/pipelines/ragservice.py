@@ -59,8 +59,8 @@ class RAGService:
     def run_pipeline(self, query: str) -> Dict[str, Any]:
         prompt = initial_prompt(query)
         simplified_prompt = self.llm_inference(prompt)
-        # print(prompt)
-        hits = self.hybrid_search(prompt, k=5)
+        print(prompt)
+        hits = self.hybrid_search(simplified_prompt, k=10)
 
         for doc in hits:
             title = doc.get("title", "Untitled")
@@ -68,7 +68,7 @@ class RAGService:
             print(f"{title} (score={score:.4f})" if score is not None else title)
         
         best_doc = hits[0]
-        prompt = summarize_irac_prompt(best_doc.get("text")[:1500],  prompt)
+        prompt = summarize_irac_prompt(best_doc.get("text"),  prompt)
         out = self.llm_irac_inference(prompt)
         print(out)
         # best_doc_str = f"Title: {best_doc.get('title')} Opinion:{best_doc.get('text')}"
