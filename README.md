@@ -1,6 +1,6 @@
 # Attorney Case Expert (ACE) 🕵️‍♂️
 
-## Problem Statement
+### Problem Statement
 
 Legal teams deal with huge numbers of court opinions spread across many sources. The usual way of researching requires attorneys and investigators to manually go through long, complicated documents, which slows down their work and makes research more expensive.
 
@@ -16,7 +16,7 @@ Key challenges include:
 
 - Relevance filtering: Surfacing the most applicable rulings without overwhelming noise.
 
-# Solution - Attorney Case Expert (ACE)
+### Solution
 
 Attorney Case Expert (ACE) is an AI tool that helps with legal research by making it faster to find and analyze past cases. It takes raw legal text and turns it into a searchable database, so lawyers, investigators, and compliance teams can get the information they need more quickly.
 
@@ -35,27 +35,27 @@ With ACE, users gain access to:
 ## 🚀 Setup
 Recommended Version == Python 3.11
 
-### Create Conda Setup
+#### Create Conda Setup
 ```Bash
 conda create -n {ENV_NAME} python=3.11 -y
 conda activate {ENV_NAME}
 ```
 
-### Install dependencies:
+#### Install dependencies:
 ```Bash
 git clone https://github.com/dericktrinidad/Attorney-Case-Expert.git
 ```
-##### Pip Install Pytorch
+###### Pip Install Pytorch
 ```Bash
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 ```
 
-##### Pip Install CinemaRAG dependencies
+###### Pip Install CinemaRAG dependencies
 ```Bash
 pip install -r requirements.txt
 ```
 
-## Fine-Tuning LLMs
+### Fine-Tuning LLMs
 
 ```Bash
 python ./finetuning/train_ace_irac_lora.py \
@@ -66,7 +66,7 @@ python ./finetuning/train_ace_irac_lora.py \
   --qlora_r 8 --use_qlora
 ```
 
-## Managing Docker
+### Managing Docker
 
 Build containers with docker-compose.yaml
 ```Bash
@@ -81,7 +81,7 @@ View Logs
 sudo docker-compose -f docker/docker-compose.yml logs -f
 ```
 
-## Ingest Case Opinions
+### Ingest Case Opinions
 
 Run python script to populate weaviate vector database with case opinions
 
@@ -89,13 +89,13 @@ Run python script to populate weaviate vector database with case opinions
 python main.py --ingest 'path/to/opinions.csv'
 ```
 
-## Run Pipeline
+### Run Pipeline
 
 ``` Bash
 python main.py --query 'Input Query Here'
 ```
 
-## Run Example
+### Run Example
 
 Prompt Example
 ``` Bash
