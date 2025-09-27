@@ -2,7 +2,7 @@
 
 ## Problem Statement
 
-Legal teams are inundated with vast volumes of court opinions scattered across jurisdictions and databases. Traditional workflows require attorneys and investigators to manually sift through lengthy, complex documents, slowing down decision-making and inflating research costs.
+Legal teams deal with huge numbers of court opinions spread across many sources. The usual way of researching requires attorneys and investigators to manually go through long, complicated documents, which slows down their work and makes research more expensive.
 
 Key challenges include:
 
@@ -18,19 +18,19 @@ Key challenges include:
 
 # Solution - Attorney Case Expert (ACE)
 
-Attorney Case Expert (ACE) is an AI-powered legal research platform designed to accelerate precedent discovery and case analysis. ACE converts unstructured legal text into a searchable, vectorized database, enabling lawyers, investigators, and compliance teams to work more efficiently.
+Attorney Case Expert (ACE) is an AI tool that helps with legal research by making it faster to find and analyze past cases. It takes raw legal text and turns it into a searchable database, so lawyers, investigators, and compliance teams can get the information they need more quickly.
 
 With ACE, users gain access to:
 
-Natural-language legal search: Query in plain English (e.g., “What fraud cases involving wire transfers have been decided in the last five years?”).
+- Natural-language legal search: Query in plain English (e.g., “What fraud cases involving wire transfers have been decided in the last five years?”).
 
-Context-aware retrieval: Results ranked by legal context and precedent relevance, not just keywords.
+- Context-aware retrieval: Results ranked by legal context and precedent relevance, not just keywords.
 
-LLM-driven summaries: Concise, IRAC-formatted explanations with citations, allowing rapid assessment of each case.
+- LLM-driven summaries: Concise, IRAC-formatted explanations with citations, allowing rapid assessment of each case.
 
-Scalability in design: Built with modular pipelines, batched ingestion, and retriever–generator architecture to handle large legal corpora.
+- Scalability in design: Built with modular pipelines, batched ingestion, and retriever–generator architecture to handle large legal corpora.
 
-Practical value for professionals: Reduces manual review time and highlights precedents that directly support legal arguments.
+- Practical value for professionals: Reduces manual review time and highlights precedents that directly support legal arguments.
 
 ## 🚀 Setup
 Recommended Version == Python 3.11
