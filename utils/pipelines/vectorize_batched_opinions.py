@@ -26,9 +26,8 @@ WEAVIATE_GRPC_PORT = int(os.getenv("WEAVIATE_GRPC_PORT", "50051"))
 
 
 
-class TokenizeOpinions:
-    def __init__(self, retriever:WeaviateRetriever):
-        self.retriever = retriever
+class VectorizeOpinions:
+    def __init__(self):
         print(f"CONNECTING TO CLIENT {WEAVIATE_HTTP_PORT}")
         self.client = self.init_client()
         print("✅ Connected to Weaviate client")
@@ -64,7 +63,7 @@ class TokenizeOpinions:
     def stable_chunk_uuid(self, doc_id: str, chunk_index: int) -> str:
         return str(uuid5(NAMESPACE_URL, f"{doc_id}::chunk::{chunk_index}"))
 
-    def ingest(self, top_opinions: List, index: str='batched_opinions'):
+    def ingest(self, opinions_path: str, index: str='Cases'):
         try:
             # Create collection if missing (BYO vectors => VectorConfig.none)
             if index not in self.client.collections.list_all():
@@ -84,37 +83,45 @@ class TokenizeOpinions:
                 )
                 print(f"Collection '{index}' created")
             else:
-                print(f"Collection '{index}' already exists")
                 
+                print(f"Collection '{index}' already exists")
             cases = self.client.collections.get(index)
             
-
+            opinions_df = pd.read_csv(opinions_path)
             with cases.batch.dynamic() as batch:
-                for i, doc in tqdm(enumerate(top_opinions), total=len(df), desc="Ingesting to Weaviate"):
-                    full_text = self._clean_txt(doc["text"])
-                    if not full_text:
-                        continue
-                    doc_id = self.stable_doc_id(doc)
-                    chunks = self.chunk_text(full_text, max_tokens=1000, overlap=200)
-                    n = len(chunks)
-                    
-                    for ci, chunk in enumerate(chunks):
-                        vec = self.tok.encode(chunk).astype(float32)
-                        uid = self.stable_chunk_uuid(doc_id, ci)
-                        props = {
-                            "doc_id": doc_id,
-                            "chunk_index": ci,
-                            "chunk_count": n,
-                            "title": doc.get("title", ""),
-                            "date_filed": self.norm_date(doc.get("date_filed")) or "1970-01-01T00:00:00Z",
-                            "url": doc.get("absolute_url") or doc.get("url") or "",
-                            "text": chunk,
-                            }
-                        batch.add_object(
-                            properties=props,
-                            vector=vec,
-                            uuid=uid
-                            )
+                with tqdm(total=len(opinions_df), desc="Ingesting to Weaviate") as pbar:
+                    for i, doc in opinions_df.iterrows():
+                        full_text = self._clean_txt(doc["text"])
+                        title =  doc.get("case_name", "")
+                        
+                        if not full_text:
+                            pbar.update(1)
+                            continue
+                        
+                        doc_id = self.stable_doc_id(doc)
+                        chunks = self.chunk_text(full_text, max_words=300, overlap=40)
+                        n = len(chunks)
+                        for ci, chunk in enumerate(chunks):
+                            # tqdm.write(f"[{i}] {title} (chunk {ci+1}/{n})")
+                            
+                            vec = self.tok.encode(chunk).astype(float32)
+                            uid = self.stable_chunk_uuid(doc_id, ci)
+                            props = {
+                                "doc_id": doc_id,
+                                "chunk_index": ci,
+                                "chunk_count": n,
+                                "title": title,
+                                "date_filed": self.norm_date(doc.get("date_filed")) or "1970-01-01T00:00:00Z",
+                                "url": doc.get("absolute_url") or doc.get("url") or "",
+                                "text": chunk,
+                                }
+                            batch.add_object(
+                                properties=props,
+                                vector=vec,
+                                uuid=uid
+                                )
+                            pbar.set_postfix_str(f"{title[:40]} (chunk {ci+1}/{len(chunks)})")
+                        pbar.update(1)
                         
             class_obj = self.client.collections.get(index)
             total = class_obj.aggregate.over_all(total_count=True).total_count
@@ -123,16 +130,15 @@ class TokenizeOpinions:
             self.client.close()
             print("Client is Closed")
             
-    def chunk_text(self, text: str, max_tokens=1000, overlap=200) -> List[str]:
-        ids = self.tok.encode(text, add_special_tokens=False)
+    def chunk_text(self, text: str, max_words=300, overlap=40) -> List[str]:
+        words = text.split()
         chunks = []
         start = 0
-        while start < len(ids):
-            end = min(start + max_tokens, len(ids))
-            chunk_ids = ids[start:end]
-            chunks.append(self.tok.decode(chunk_ids))
-            if end == len(ids):
+        while start < len(words):
+            end = min(start + max_words, len(words))
+            chunk = " ".join(words[start:end])
+            chunks.append(chunk)
+            if end == len(words):
                 break
             start = end - overlap  # sliding window with overlap
-            if start < 0: start = 0
         return chunks

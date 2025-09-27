@@ -75,11 +75,11 @@ sudo docker-compose -f docker/docker-compose.yml logs -f
 Run python script to populate weaviate vector database with case opinions
 
 ``` Bash
-python ./ingest/ingest_case_opinions_df.py
+python main.py --ingest 'path/to/opinions.csv'
 ```
 
 ## Run Pipeline
 
 ``` Bash
-python main.py
+python main.py --query 'Input Query Here'
 ```

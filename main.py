@@ -1,8 +1,11 @@
+import argparse
+import torch
 from utils.retriever import WeaviateRetriever
 from utils.telemetry import init_tracing
 from utils.pipelines.ragservice import RAGService
+from utils.pipelines.vectorize_batched_opinions import VectorizeOpinions 
 from utils.models.llm.hf_infer import HFModelManager, HFLoadConfig, GenerateConfig
-import torch
+
 torch.cuda.empty_cache()
 
 def build_service():
@@ -17,11 +20,37 @@ def build_service():
     llm_cfg = HFLoadConfig(**model_kwargs)
     return RAGService(cfg=cfg, llm_cfg=llm_cfg, retriever=retriever)
 
-def main():
+def ingest_data(path: str):
+    print(f"[INFO] Ingesting data from {path}")
+    # retriever = WeaviateRetriever()
+    vectorizer = VectorizeOpinions()
+    vectorizer.ingest(path)
+
+def run_query(query: str):
     svc = build_service()
-    query = "What are the consiquences for theft?"
     out = svc.run_pipeline(query)
-    print(out)
-    
+
+def build_parser():
+    parser = argparse.ArgumentParser(description="Ace RAG Service CLI")
+    parser.add_argument("--ingest",
+        type=str,
+        help="Path to CSV file with raw opinions to ingest."
+    )
+    parser.add_argument(
+        "--query",
+        type=str,
+        help="Question to query against the RAG pipeline."
+    )
+    return parser, parser.parse_args()
+
+def main():
+    parser, args = build_parser()
+    if args.ingest:
+        ingest_data(args.ingest)
+    elif args.query:
+        run_query(args.query)
+    else:
+        parser.print_help()
+
 if __name__ == "__main__":
     main()

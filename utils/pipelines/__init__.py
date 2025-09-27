@@ -1,3 +1,4 @@
 from .ragservice import RAGService
 
-__all__ = ["RAGService"]
+from .vectorize_batched_opinions import VectorizeOpinions
+__all__ = ["RAGService", "VectorizeOpinions"]
