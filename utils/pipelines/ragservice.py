@@ -55,22 +55,33 @@ class RAGService:
     def llm_irac_inference(self, prompt: str) -> str:
         out = self.llm.make_irac_inference(prompt, GenerateConfig())
         return out
-    
+
+    def refine_output(self, out):
+        return out.split("[END USER PROMPT]")[-1]
+
     def run_pipeline(self, query: str) -> Dict[str, Any]:
         prompt = initial_prompt(query)
         simplified_prompt = self.llm_inference(prompt)
-        print(prompt)
-        hits = self.hybrid_search(simplified_prompt, k=10)
-
-        for doc in hits:
-            title = doc.get("title", "Untitled")
-            score = doc.get("_score", None)
-            print(f"{title} (score={score:.4f})" if score is not None else title)
+        cleaned_simplified_prompt = self.refine_output(simplified_prompt)
         
-        best_doc = hits[0]
-        prompt = summarize_irac_prompt(best_doc.get("text"),  prompt)
+        hits = self.hybrid_search(cleaned_simplified_prompt, k=10)
+        top_docs = {doc.get('title'): [] for doc in hits[:3] } #get highest score docs
+        for doc in hits:
+            title = doc.get('title')
+            text = doc.get('text')
+            score = doc.get('_score')
+            print(f"Top K Docs:\nTitle = {title}\nScore = {score}\nText = {text[:100]}")
+            if title in set(top_docs.keys()):
+                top_docs[title].append(text)
+
+        best_doc = list(top_docs.items())[0]
+        best_doc_text = ' '.join(best_doc[1])
+        best_doc_info = f"Title:{best_doc[0]} Text: {best_doc_text}"
+        prompt = summarize_irac_prompt(best_doc_info,  query)
         out = self.llm_irac_inference(prompt)
-        print(out)
+        print("Final Prompt Output:\n")
+        refined_final_output = self.refine_output(out) 
+        print(refined_final_output)
         # best_doc_str = f"Title: {best_doc.get('title')} Opinion:{best_doc.get('text')}"
         # opinion_prompt = summarize_opinion_prompt(best_doc_str, query)
                 

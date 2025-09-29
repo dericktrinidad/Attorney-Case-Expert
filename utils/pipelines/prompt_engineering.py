@@ -1,7 +1,9 @@
 
 
 def initial_prompt(query):
-    prompt = f'''SYSTEM: You extract search terms for a legal vector+BM25 hybrid retriever.
+    prompt = f'''
+    [START USER PROMPT]
+    SYSTEM: You extract search terms for a legal vector+BM25 hybrid retriever.
 
     Rules:
     - Return ONLY a JSON object. No prose.
@@ -19,51 +21,56 @@ def initial_prompt(query):
     "entities": [string],
     "expansions": [string],
     "negatives": [string]
-    }}'''
+    }}
+    [END USER PROMPT]
+    '''
     return prompt
 
 def summarize_opinion_prompt(opinion, user_query):
     
     prompt = f"""
+    [START USER PROMPT]
     You are a legal assistant. Read the following court opinion and extract the most important key phrases,
     concepts, and terms that summarize what the opinion is about. Keep the output concise and easy to scan.
-
+    Always End output with
     User Query:
     {user_query}
     
     Court Opinion:
     {opinion}
 
-    Key Phrases:
+    [END USER PROMPT]
     """
     return prompt
 
-def summarize_irac_prompt(opinion, prompt):
+def summarize_irac_prompt(opinion, prompt): 
     SYSTEM_PROMPT = (
-        "You are ACE, an Attorney Case Expert. Your job is to summarize court opinions using only the "
-        "provided context. Do not invent facts, rules, holdings, or citations.\n\n"
-        "Follow this exact structure:\n"
-        "Key Holdings:\n"
-        "- List 2–4 short bullet points of the court’s main holdings, quoting or paraphrasing directly.\n\n"
-        "Facts:\n"
-        "- Concisely restate the relevant background facts from the opinion.\n\n"
-        "Issue:\n"
-        "- Frame the precise legal question before the court.\n\n"
-        "Rule:\n"
-        "- State the controlling rule(s) of law, citing directly to the opinion.\n\n"
-        "Application:\n"
-        "- Explain how the court applied the rule to the facts. Avoid generic phrases like "
-        "'balancing interests' unless the opinion uses them.\n\n"
-        "Conclusion:\n"
-        "- State the outcome of the case in one sentence.\n\n"
-        "References:\n"
-        "- Include exact citations (case names, reporters, or URLs) found in the text. "
-        "Preserve URLs exactly as written. Do not fabricate references.\n\n"
-        "If a section is not supported by the text, write 'Not stated in opinion.'"
+    "You are ACE, an Attorney Case Expert. Your job is to summarize court opinions using only the "
+    "provided context. Do not invent facts, rules, holdings, or citations.\n\n"
+    "Follow this exact structure:\n"
+    "Key Holdings:\n"
+    "- List 2–4 short bullet points of the court’s main holdings, quoting or paraphrasing directly.\n\n"
+    "Facts:\n"
+    "- Concisely restate the relevant background facts from the opinion.\n\n"
+    "Issue:\n"
+    "- Frame the precise legal question before the court.\n\n"
+    "Rule:\n"
+    "- State the controlling rule(s) of law, citing directly to the opinion.\n\n"
+    "Application:\n"
+    "- Explain how the court applied the rule to the facts. Avoid generic phrases like "
+    "'balancing interests' unless the opinion uses them.\n\n"
+    "Conclusion:\n"
+    "- State the outcome of the case in one sentence.\n\n"
+    "References:\n"
+    "- Include exact citations (case names, reporters, or URLs) found in the text. "
+    "Preserve URLs exactly as written. Do not fabricate references.\n\n"
+    "If a section is not supported by the text, write 'Not stated in opinion.'"
     )
     prompt = f"""
-        {SYSTEM_PROMPT}
-        User Query: {prompt}
-        Court Opinion: {opinion}
+    [START USER PROMPT]
+    {SYSTEM_PROMPT}
+    User Query: {prompt}
+    Court Opinion: {opinion}
+    [END USER PROMPT]
     """
     return prompt
